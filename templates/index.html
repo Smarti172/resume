@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Проверка резюме кандидатов</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Проверка резюме кандидатов</h1>
+        <form id="applyForm" method="post" action="/apply">
+            <label for="vacancy_requirements">Требования к вакансии:</label>
+            <input type="text" id="vacancy_requirements" name="vacancy_requirements" required>
+            <button type="submit">Проверить кандидатов</button>
+        </form>
+        <div id="results"></div>
+    </div>
+
+    <script>
+        document.getElementById("applyForm").onsubmit = async (event) => {
+            event.preventDefault();
+            const formData = new FormData(event.target);
+            const response = await fetch("/apply", { method: "POST", body: formData });
+            const result = await response.json();
+
+            const resultsDiv = document.getElementById("results");
+            resultsDiv.innerHTML = "<h2>Результаты:</h2>";
+
+            result.results.forEach(candidate => {
+                const candidateDiv = document.createElement("div");
+                candidateDiv.innerHTML = `<p>Резюме: <a href="https://resumestorage172.s3.eu-north-1.amazonaws.com/${candidate.resume}" target="_blank">${candidate.resume}</a> - ${candidate.assessment}</p>`;
+                resultsDiv.appendChild(candidateDiv);
+            });
+        };
+    </script>
+</body>
+</html>
